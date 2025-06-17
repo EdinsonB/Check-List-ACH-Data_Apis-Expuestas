@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Chequeo de Certificación API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 540px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 32px 24px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+        }
+        select {
+            margin-top: 4px;
+            margin-bottom: 8px;
+            width: 100%;
+            font-size: 15px;
+            border-radius: 4px;
+            border: 1px solid #bbb;
+            padding: 7px;
+        }
+        .evidence-label {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .evidence-box {
+            min-height: 100px;
+            width: 100%;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            padding: 7px;
+            margin-bottom: 8px;
+            background: #fafafa;
+            font-size: 15px;
+            outline: none;
+            resize: vertical;
+            overflow: auto;
+            white-space: pre-wrap;
+            transition: border-color 0.3s;
+        }
+        .evidence-box img {
+            max-width: 100%;
+            max-height: 400px;
+            min-width: 100px;
+            min-height: 60px;
+            margin: 8px 0;
+            display: block;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+        .alerta {
+            border-color: #f44336 !important;
+            box-shadow: 0 0 0 2px #f4433633;
+        }
+        .alerta-label {
+            color: #f44336 !important;
+            font-weight: bold;
+            font-size: 13px;
+            margin-top: 2px;
+            display: block;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #0078d7;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 4px;
+            font-size: 15px;
+            background: #e6ffed;
+            color: #207544;
+            border: 1px solid #b7eb8f;
+            display: none;
+        }
+        .result.incomplete {
+            background: #fffbe6;
+            color: #ad8b00;
+            border: 1px solid #ffe58f;
+        }
+        .result img {
+            max-width: 100%;
+            max-height: 400px;
+            min-width: 100px;
+            min-height: 60px;
+            margin: 8px 0;
+            display: block;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+        @media print {
+            .btn-group, button { display: none !important; }
+            .container { box-shadow: none; }
+        }
+    </style>
+    <!-- jsPDF y html2canvas desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Lista de Chequeo<br>Certificación API</h2>
+        <form id="checklistForm" autocomplete="off">
+            <ul>
+                <li>
+                    <label>El endpoint principal responde correctamente con datos válidos.</label>
+                    <select name="status1" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="1" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+                <li>
+                    <label>El manejo de errores de la API está implementado según la documentación.</label>
+                    <select name="status2" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="2" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+                <li>
+                    <label>Se validan los parámetros obligatorios y opcionales en las peticiones.</label>
+                    <select name="status3" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="3" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+                <li>
+                    <label>Las respuestas cumplen con el formato esperado (estructura y tipos de datos).</label>
+                    <select name="status4" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="4" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+                <li>
+                    <label>Se gestionan correctamente los códigos de estado HTTP.</label>
+                    <select name="status5" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="5" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+                <li>
+                    <label>La autenticación y autorización funcionan según lo requerido.</label>
+                    <select name="status6" required>
+                        <option value="">Selecciona estado</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No aplica">No aplica</option>
+                    </select>
+                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
+                    <div class="evidence-box" contenteditable="true" data-idx="6" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
+                </li>
+            </ul>
+            <div class="btn-group">
+                <button type="button" id="saveBtn">Guardar cambios</button>
+                <button type="button" id="pdfBtn">Generar PDF</button>
+                <button type="submit">Finalizar Chequeo</button>
+            </div>
+        </form>
+        <div id="result" class="result"></div>
+    </div>
+    <script>
+        // Permitir pegar varias imágenes y texto en cada evidencia-box
+        document.querySelectorAll('.evidence-box').forEach(box => {
+            box.addEventListener('paste', function(e) {
+                if (e.clipboardData && e.clipboardData.items) {
+                    let handled = false;
+                    for (let i = 0; i < e.clipboardData.items.length; i++) {
+                        const item = e.clipboardData.items[i];
+                        if (item.type.indexOf("image") !== -1) {
+                            const file = item.getAsFile();
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                // Insertar imagen en la posición del cursor
+                                const img = document.createElement('img');
+                                img.src = event.target.result;
+                                img.style.maxWidth = "100%";
+                                img.style.maxHeight = "400px";
+                                img.style.minWidth = "100px";
+                                img.style.minHeight = "60px";
+                                img.style.margin = "8px 0";
+                                img.style.display = "block";
+                                img.style.resize = "both";
+                                img.style.overflow = "auto";
+                                img.style.border = "1px solid #ccc";
+                                img.style.background = "#fff";
+                                insertAtCursor(box, img);
+                            };
+                            reader.readAsDataURL(file);
+                            handled = true;
+                        }
+                    }
+                    if (handled) e.preventDefault();
+                }
+            });
+        });
+
+        // Función para insertar un nodo en la posición del cursor
+        function insertAtCursor(editableDiv, node) {
+            let sel, range;
+            if (window.getSelection) {
+                sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                    range = sel.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(node);
+                    // Mover el cursor después de la imagen
+                    range.setStartAfter(node);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        }
+
+        // Guardar cambios en localStorage
+        document.getElementById('saveBtn').onclick = function() {
+            const data = {};
+            for (let i = 1; i <= 6; i++) {
+                data['status' + i] = document.querySelector(`select[name="status${i}"]`).value;
+                data['evidence' + i] = document.querySelector(`.evidence-box[data-idx="${i}"]`).innerHTML;
+            }
+            localStorage.setItem('checklistAPI', JSON.stringify(data));
+            alert('Cambios guardados localmente.');
+        };
+
+        // Cargar cambios desde localStorage
+        window.addEventListener('DOMContentLoaded', function() {
+            const data = localStorage.getItem('checklistAPI');
+            if (data) {
+                try {
+                    const obj = JSON.parse(data);
+                    for (let i = 1; i <= 6; i++) {
+                        if (obj['status' + i]) document.querySelector(`select[name="status${i}"]`).value = obj['status' + i];
+                        if (obj['evidence' + i]) document.querySelector(`.evidence-box[data-idx="${i}"]`).innerHTML = obj['evidence' + i];
+                    }
+                } catch {}
+            }
+        });
+
+        // Validación de evidencias y estados para puntos aprobados
+        function validarEvidenciasYEstados(marcarAlertas = false) {
+            let faltan = [];
+            for (let i = 1; i <= 6; i++) {
+                const select = document.querySelector(`select[name="status${i}"]`);
+                const status = select.value;
+                const box = document.querySelector(`.evidence-box[data-idx="${i}"]`);
+                const htmlData = box.innerHTML.trim();
+                const cleanHtml = htmlData.replace(/<[^\/>][^>]*><\/[^>]+>/g, '').trim();
+                // Remover alerta previa
+                select.classList.remove('alerta');
+                box.classList.remove('alerta');
+                let alertaLabel = box.parentElement.querySelector('.alerta-label');
+                if (alertaLabel) alertaLabel.remove();
+
+                if (!status) {
+                    if (marcarAlertas) {
+                        select.classList.add('alerta');
+                        let label = document.createElement('span');
+                        label.className = 'alerta-label';
+                        label.innerText = 'Selecciona un estado';
+                        select.parentElement.insertBefore(label, select.nextSibling);
+                    }
+                    faltan.push({idx: i, tipo: 'estado'});
+                } else if (status === 'Pendiente') {
+                    if (marcarAlertas) {
+                        select.classList.add('alerta');
+                        let label = document.createElement('span');
+                        label.className = 'alerta-label';
+                        label.innerText = 'No puede estar en estado Pendiente para generar PDF';
+                        select.parentElement.insertBefore(label, select.nextSibling);
+                    }
+                    faltan.push({idx: i, tipo: 'pendiente'});
+                } else if (status === 'Aprobado' && (!cleanHtml || cleanHtml === '<br>')) {
+                    if (marcarAlertas) {
+                        box.classList.add('alerta');
+                        let label = document.createElement('span');
+                        label.className = 'alerta-label';
+                        label.innerText = 'Debes ingresar evidencia para puntos aprobados';
+                        box.parentElement.appendChild(label);
+                    }
+                    faltan.push({idx: i, tipo: 'evidencia'});
+                }
+            }
+            return faltan;
+        }
+
+        // Generar PDF con jsPDF y html2canvas usando el formulario (multipágina)
+        document.getElementById('pdfBtn').onclick = function() {
+            let faltan = validarEvidenciasYEstados(true);
+            if (faltan.length > 0) {
+                alert('Corrige los campos resaltados antes de generar el PDF.');
+                return;
+            }
+            document.querySelector('.btn-group').style.display = 'none';
+            html2canvas(document.querySelector('.container'), {useCORS: true, scale: 2}).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new window.jspdf.jsPDF({
+                    orientation: 'p',
+                    unit: 'pt',
+                    format: 'a4'
+                });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pageWidth - 40;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+
+                let pageImgHeight = pageHeight - 40;
+                let sHeight = Math.floor((pageImgHeight * canvas.width) / imgWidth);
+                let sWidth = canvas.width;
+                let sX = 0;
+                let sY = 0;
+                let remainingHeight = imgHeight;
+                let pageCount = 0;
+
+                if (imgHeight <= pageImgHeight) {
+                    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+                } else {
+                    let canvasPage = document.createElement('canvas');
+                    let ctx = canvasPage.getContext('2d');
+                    while (remainingHeight > 0) {
+                        canvasPage.width = sWidth;
+                        canvasPage.height = sHeight;
+                        ctx.clearRect(0, 0, sWidth, sHeight);
+                        ctx.drawImage(canvas, sX, sY, sWidth, sHeight, 0, 0, sWidth, sHeight);
+                        let pageData = canvasPage.toDataURL('image/png');
+                        if (pageCount > 0) pdf.addPage();
+                        pdf.addImage(pageData, 'PNG', 20, 20, imgWidth, pageImgHeight);
+                        remainingHeight -= pageImgHeight;
+                        sY += sHeight;
+                        pageCount++;
+                    }
+                }
+                pdf.save('chequeo-api.pdf');
+                document.querySelector('.btn-group').style.display = 'flex';
+            });
+        };
+
+        const form = document.getElementById('checklistForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            resultDiv.style.display = 'none';
+            resultDiv.className = 'result';
+
+            // Limpiar alertas previas
+            validarEvidenciasYEstados(false);
+            let faltan = validarEvidenciasYEstados(true);
+            if (faltan.length > 0) {
+                resultDiv.innerHTML = `<b>Corrige los campos resaltados antes de finalizar el chequeo.</b>`;
+                resultDiv.className = 'result incomplete';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            const items = [];
+            for (let i = 1; i <= 6; i++) {
+                const status = form['status' + i].value;
+                const box = document.querySelector('.evidence-box[data-idx="' + i + '"]');
+                const htmlData = box.innerHTML.trim();
+                const cleanHtml = htmlData.replace(/<[^\/>][^>]*><\/[^>]+>/g, '').trim();
+                items.push({
+                    label: box.parentElement.querySelector('label').textContent,
+                    status,
+                    evidence: cleanHtml
+                });
+            }
+
+            let resumen = '<strong>Resumen de la lista de chequeo:</strong><ul>';
+            items.forEach((item) => {
+                resumen += `<li><strong>${item.label}</strong><br>Estado: ${item.status}`;
+                if(item.evidence && item.evidence !== '<br>') {
+                    resumen += `<br><span style="color:#888">Evidencia:</span><br>${item.evidence}`;
+                }
+                resumen += `</li>`;
+            });
+            resumen += '</ul>';
+
+            resultDiv.innerHTML = resumen + `<br><b>¡Lista de chequeo completada!</b>`;
+            resultDiv.className = 'result';
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
