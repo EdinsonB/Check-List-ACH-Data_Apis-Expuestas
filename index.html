@@ -1,451 +1,682 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Lista de Chequeo de Certificación API</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 540px;
-            margin: 60px auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 32px 24px;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 22px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #555;
-        }
-        select {
-            margin-top: 4px;
-            margin-bottom: 8px;
-            width: 100%;
-            font-size: 15px;
-            border-radius: 4px;
-            border: 1px solid #bbb;
-            padding: 7px;
-        }
-        .evidence-label {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 2px;
-        }
-        .evidence-box {
-            min-height: 100px;
-            width: 100%;
-            border: 1px solid #bbb;
-            border-radius: 4px;
-            padding: 7px;
-            margin-bottom: 8px;
-            background: #fafafa;
-            font-size: 15px;
-            outline: none;
-            resize: vertical;
-            overflow: auto;
-            white-space: pre-wrap;
-            transition: border-color 0.3s;
-        }
-        .evidence-box img {
-            max-width: 100%;
-            max-height: 400px;
-            min-width: 100px;
-            min-height: 60px;
-            margin: 8px 0;
-            display: block;
-            resize: both;
-            overflow: auto;
-            border: 1px solid #ccc;
-            background: #fff;
-        }
-        .alerta {
-            border-color: #f44336 !important;
-            box-shadow: 0 0 0 2px #f4433633;
-        }
-        .alerta-label {
-            color: #f44336 !important;
-            font-weight: bold;
-            font-size: 13px;
-            margin-top: 2px;
-            display: block;
-        }
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 24px;
-        }
-        button {
-            flex: 1;
-            padding: 12px;
-            background: #0078d7;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
-        .result {
-            margin-top: 24px;
-            padding: 16px;
-            border-radius: 4px;
-            font-size: 15px;
-            background: #e6ffed;
-            color: #207544;
-            border: 1px solid #b7eb8f;
-            display: none;
-        }
-        .result.incomplete {
-            background: #fffbe6;
-            color: #ad8b00;
-            border: 1px solid #ffe58f;
-        }
-        .result img {
-            max-width: 100%;
-            max-height: 400px;
-            min-width: 100px;
-            min-height: 60px;
-            margin: 8px 0;
-            display: block;
-            resize: both;
-            overflow: auto;
-            border: 1px solid #ccc;
-            background: #fff;
-        }
-        @media print {
-            .btn-group, button { display: none !important; }
-            .container { box-shadow: none; }
-        }
-    </style>
-    <!-- jsPDF y html2canvas desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checklist de Certificación API</title>
+  <style>
+    body { background: #f4f7fa; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+    .main-layout { display: flex; min-height: 100vh; }
+    .sidebar { background: #3b4a6b; color: #222; min-width: 240px; max-width: 340px; padding: 24px 0 24px 0; border-radius: 0 18px 18px 0; box-shadow: 2px 0 12px #0002; display: flex; flex-direction: column; align-items: stretch; gap: 0; transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.2s; position: relative; z-index: 2; }
+    .sidebar-oculta { transform: translateX(-95%); min-width: 0 !important; max-width: 0 !important; padding: 0 !important; overflow: hidden !important; box-shadow: none !important; border-radius: 0 18px 18px 0; }
+    .sidebar-muesca { position: absolute; top: 18px; right: -14px; width: 22px; height: 32px; background: #6e7bb9; border-radius: 0 8px 8px 0; box-shadow: 2px 0 8px #0001; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2000; transition: background 0.2s; border: 1px solid #b6c6e3; border-left: none; color: #fff; font-size: 1.1em; }
+    .sidebar-muesca:hover { background: #4f5d8c; color: #fff; }
+    .sidebar-muesca-flotante { position: fixed !important; left: 0; top: 18px; right: auto; width: 22px; height: 32px; background: #6e7bb9; border-radius: 0 8px 8px 0; box-shadow: 2px 0 8px #0001; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3000; border: 1px solid #b6c6e3; border-left: none; color: #fff; font-size: 1.1em; transition: background 0.2s; }
+    .sidebar-muesca-flotante:hover { background: #4f5d8c; color: #fff; }
+    .sidebar h3 { font-size: 1.15em; margin-bottom: 18px; font-weight: 700; letter-spacing: 1px; color: #fff; text-align: center; width: 100%; padding-bottom: 10px; border-bottom: 1px solid #6e7bb9; }
+    .sidebar-menu { display: flex; flex-direction: column; gap: 0; width: 100%; margin-top: 10px; }
+    .sidebar .nav-punto { background: #f4f7fa; border: none; color: #3b4a6b; text-align: left; width: 100%; padding: 14px 18px 14px 18px; border-radius: 0; font-size: 1em; cursor: pointer; transition: background 0.15s, color 0.15s; display: flex; align-items: flex-start; gap: 10px; border-left: 4px solid transparent; margin: 0; outline: none; min-height: 48px; line-height: 1.2; font-weight: 500; }
+    .sidebar .nav-punto.active, .sidebar .nav-punto:focus { background: #e3eafc; color: #3b4a6b; font-weight: bold; border-left: 4px solid #6e7bb9; }
+    .sidebar .nav-punto.completo { color: #198754; }
+    .sidebar .nav-punto.incompleto { color: #dc3545; }
+    .sidebar .nav-punto:not(.active):hover { background: #d6e6fa; color: #3b4a6b; }
+    .container { 
+      flex: 1; 
+      max-width: 900px; 
+      margin: 30px auto; 
+      background: #e3eafc; 
+      border-radius: 12px; 
+      padding: 24px 32px; 
+      box-shadow: 0 4px 24px #0003; 
+      transition: box-shadow 0.2s; 
+      min-width: 0; 
+      position: relative; 
+      z-index: 1; 
+      color: #222; 
+    }
+    h2 { color: #3b4a6b; text-align: center; margin-bottom: 28px; font-weight: 700; letter-spacing: 1px; }
+    .checklist-item { border-bottom: 1px solid #b6c6e3; padding: 18px 0 10px 0; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 0; transition: background 0.2s; position: relative; }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item label { font-weight: 600; color: #3b4a6b; margin-bottom: 6px; flex: 1 1 100%; font-size: 1.04em; display: flex; align-items: center; gap: 8px; }
+    .checklist-item .punto-faltante { color: #dc3545; font-size: 1.2em; margin-right: 8px; vertical-align: middle; font-weight: bold; display: inline-block; }
+    .campo-espera { background: #f7f9fc; border: 1px solid #b6c6e3; border-radius: 5px; padding: 8px 12px; color: #3b4a6b; margin-bottom: 8px; font-size: 0.98em; width: 100%; box-sizing: border-box; }
+    .checklist-item select { width: 180px; min-width: 140px; background: #fff; border: 1.5px solid #6e7bb9; color: #3b4a6b; font-weight: 500; border-radius: 5px; padding: 6px 8px; margin-bottom: 6px; transition: border-color 0.2s; }
+    .checklist-item select:focus { border-color: #198754; outline: none; background: #e3eafc; color: #198754; }
+    .toolbar-evidencia {
+      margin-bottom: 6px;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .toolbar-evidencia button, .toolbar-evidencia input[type="color"] {
+      background: #fff;
+      border: 1px solid #b6c6e3;
+      border-radius: 4px;
+      margin-right: 0;
+      cursor: pointer;
+      font-size: 1em;
+      padding: 2px 7px;
+      color: #3b4a6b;
+      transition: background 0.2s;
+      height: 32px;
+      min-width: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toolbar-evidencia button:hover, .toolbar-evidencia input[type="color"]:hover {
+      background: #e3eafc;
+    }
+    .toolbar-evidencia input[type="color"] {
+      padding: 0;
+      border: none;
+      background: none;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      margin: 0 0 0 0;
+    }
+    .toolbar-evidencia svg {
+      pointer-events: none;
+    }
+    .checklist-item [contenteditable="true"] {
+      width: 100%;
+      min-height: 38px;
+      max-height: 240px;
+      border-radius: 6px;
+      border: 1.5px solid #198754;
+      background: #fff;
+      color: #3b4a6b;
+      font-size: 1em;
+      padding: 7px 10px;
+      margin-bottom: 4px;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+      outline: none;
+      overflow-y: auto;
+      word-break: break-word;
+    }
+    .checklist-item [contenteditable="true"]:focus {
+      border-color: #6e7bb9;
+      background: #f7f9fc;
+      color: #3b4a6b;
+    }
+    .checklist-item [contenteditable="true"] img {
+      display: inline-block;
+      margin: 6px 0;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px #0002;
+      resize: both;
+      cursor: move;
+      transition: box-shadow 0.2s;
+    }
+    .img-resize-handle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #198754;
+      border-radius: 50%;
+      right: -6px;
+      bottom: -6px;
+      cursor: se-resize;
+      z-index: 10;
+      border: 2px solid #fff;
+      box-shadow: 0 0 2px #0005;
+      display: none;
+    }
+    .img-resizable-wrapper {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+    }
+    .img-resizable-wrapper.selected .img-resize-handle {
+      display: block;
+    }
+    .img-toolbar {
+      display: none;
+      position: absolute;
+      top: -32px;
+      right: 0;
+      z-index: 20;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px #0002;
+      padding: 2px 4px;
+    }
+    .img-toolbar button {
+      background: #fff;
+      border: 1px solid #b6c6e3;
+      border-radius: 4px;
+      margin-left: 2px;
+      cursor: pointer;
+      font-size: 1em;
+      padding: 2px 6px;
+      color: #3b4a6b;
+      transition: background 0.2s;
+    }
+    .img-toolbar button:hover {
+      background: #e3eafc;
+    }
+    .img-resizable-wrapper.selected .img-toolbar {
+      display: inline-block;
+    }
+    .char-count { font-size: 0.85em; color: #6e7bb9; text-align: right; margin-bottom: 2px; display:none; }
+    .btn { background: #6e7bb9; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 1em; font-weight: 600; margin: 0 6px; box-shadow: 0 2px 8px #6e7bb922; transition: background 0.2s, box-shadow 0.2s; }
+    .btn:hover { background: #198754; color: #fff; box-shadow: 0 4px 16px #19875422; }
+    .error { color: #dc3545; font-size: 0.97em; margin-bottom: 8px; font-weight: 500; }
+    .success { color: #198754; font-size: 1em; margin-bottom: 8px; font-weight: 500; }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 24px 0 0 0; }
+    .pagination button { background: #e3eafc; color: #3b4a6b; border: none; border-radius: 4px; padding: 6px 14px; font-size: 1em; font-weight: 500; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    .pagination button.active, .pagination button:focus { background: #6e7bb9; color: #fff; font-weight: bold; outline: none; }
+    .pagination button:disabled { background: #f1f1f1; color: #aaa; cursor: not-allowed; }
+    @media (max-width: 900px) {
+      .container { max-width: 99vw; padding: 12px 4vw; }
+      .main-layout { flex-direction: column; }
+      .sidebar { flex-direction: row; min-width: 0; max-width: 100vw; border-radius: 0 0 18px 18px; padding: 12px 4vw; overflow-x: auto; gap: 0; }
+      .sidebar h3 { display: none; }
+      .sidebar-menu { flex-direction: row; width: 100%; gap: 0; }
+      .sidebar .nav-punto { min-width: 120px; justify-content: flex-start; padding: 10px 8px; font-size: 0.97em; border-left: none; border-bottom: 4px solid transparent; border-radius: 0; white-space: normal; align-items: flex-start; }
+      .sidebar .nav-punto.active, .sidebar .nav-punto:focus { border-left: none; border-bottom: 4px solid #6e7bb9; }
+      .sidebar-muesca, .sidebar-muesca-flotante { top: 10px; right: -14px; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 8px 2vw; }
+      .checklist-item { flex-direction: column; gap: 0; }
+      .checklist-item select { width: 100%; min-width: 0; }
+      .sidebar .nav-punto { font-size: 0.93em; min-width: 180px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Lista de Chequeo<br>Certificación API</h2>
-        <form id="checklistForm" autocomplete="off">
-            <ul>
-                <li>
-                    <label>El endpoint principal responde correctamente con datos válidos.</label>
-                    <select name="status1" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="1" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-                <li>
-                    <label>El manejo de errores de la API está implementado según la documentación.</label>
-                    <select name="status2" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="2" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-                <li>
-                    <label>Se validan los parámetros obligatorios y opcionales en las peticiones.</label>
-                    <select name="status3" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="3" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-                <li>
-                    <label>Las respuestas cumplen con el formato esperado (estructura y tipos de datos).</label>
-                    <select name="status4" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="4" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-                <li>
-                    <label>Se gestionan correctamente los códigos de estado HTTP.</label>
-                    <select name="status5" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="5" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-                <li>
-                    <label>La autenticación y autorización funcionan según lo requerido.</label>
-                    <select name="status6" required>
-                        <option value="">Selecciona estado</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="No aplica">No aplica</option>
-                    </select>
-                    <span class="evidence-label">Evidencia (puedes escribir texto y/o pegar varias capturas):</span>
-                    <div class="evidence-box" contenteditable="true" data-idx="6" placeholder="Pega aquí la evidencia (Ctrl+V captura o texto)"></div>
-                </li>
-            </ul>
-            <div class="btn-group">
-                <button type="button" id="saveBtn">Guardar cambios</button>
-                <button type="button" id="pdfBtn">Generar PDF</button>
-                <button type="submit">Finalizar Chequeo</button>
-            </div>
-        </form>
-        <div id="result" class="result"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-muesca" id="sidebarMuesca" title="Ocultar barra lateral">
+        <span id="sidebarMuescaIcon">&#x25C0;</span>
+      </div>
+      <h3>Puntos</h3>
+      <div class="sidebar-menu" id="sidebarMenu"></div>
+    </nav>
+    <div class="sidebar-muesca-flotante" id="sidebarMuescaShow" title="Mostrar barra lateral" style="display:none;">
+      <span style="font-size:1.1em;">&#x25B6;</span>
     </div>
-    <script>
-        // Permitir pegar varias imágenes y texto en cada evidencia-box
-        document.querySelectorAll('.evidence-box').forEach(box => {
-            box.addEventListener('paste', function(e) {
-                if (e.clipboardData && e.clipboardData.items) {
-                    let handled = false;
-                    for (let i = 0; i < e.clipboardData.items.length; i++) {
-                        const item = e.clipboardData.items[i];
-                        if (item.type.indexOf("image") !== -1) {
-                            const file = item.getAsFile();
-                            const reader = new FileReader();
-                            reader.onload = function(event) {
-                                // Insertar imagen en la posición del cursor
-                                const img = document.createElement('img');
-                                img.src = event.target.result;
-                                img.style.maxWidth = "100%";
-                                img.style.maxHeight = "400px";
-                                img.style.minWidth = "100px";
-                                img.style.minHeight = "60px";
-                                img.style.margin = "8px 0";
-                                img.style.display = "block";
-                                img.style.resize = "both";
-                                img.style.overflow = "auto";
-                                img.style.border = "1px solid #ccc";
-                                img.style.background = "#fff";
-                                insertAtCursor(box, img);
-                            };
-                            reader.readAsDataURL(file);
-                            handled = true;
-                        }
-                    }
-                    if (handled) e.preventDefault();
-                }
-            });
-        });
+    <div class="container">
+      <h2>Checklist de Certificación para Consumo de API</h2>
+      <form id="checklistForm" autocomplete="off">
+        <div id="checklist"></div>
+        <div class="pagination" id="pagination"></div>
+        <div id="formMsg" style="text-align:center; margin-bottom:10px;"></div>
+        <div style="text-align:center; margin-top:20px;">
+          <button type="button" class="btn" onclick="guardarCambios()">Guardar cambios</button>
+          <button type="button" class="btn" onclick="exportarPDF()">Exportar a PDF</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const checklistItems = [
+      { id: 1, texto: "Autenticación OAuth 2.0/OpenID Connect implementada", esperado: "El sistema debe autenticar usando OAuth 2.0 o OpenID Connect, siguiendo los estándares de seguridad." },
+      { id: 2, texto: "Uso de tokens JWT válidos", esperado: "Las peticiones deben incluir tokens JWT válidos y no expirados." },
+      { id: 3, texto: "Comunicación solo por HTTPS", esperado: "Todas las comunicaciones con la API deben realizarse exclusivamente por HTTPS." },
+      { id: 4, texto: "Gestión de expiración y refresh de tokens", esperado: "El sistema debe manejar la expiración de tokens y usar refresh tokens cuando corresponda." },
+      { id: 5, texto: "Almacenamiento seguro de credenciales", esperado: "Las credenciales y secretos deben almacenarse de forma segura y nunca exponerse públicamente." },
+      { id: 6, texto: "Solicita solo los permisos necesarios", esperado: "El sistema debe solicitar únicamente los permisos (scopes) estrictamente necesarios." },
+      { id: 7, texto: "Respeta restricciones de acceso", esperado: "El sistema debe respetar las restricciones de acceso según los permisos otorgados." },
+      { id: 8, texto: "Manejo de errores y límites de uso", esperado: "El sistema debe manejar correctamente errores y límites de uso (rate limiting)." },
+      { id: 9, texto: "Pruebas de integración y seguridad realizadas", esperado: "Se deben realizar pruebas de integración y seguridad con la API." },
+      { id: 10, texto: "Documentación revisada y comprendida", esperado: "El equipo debe haber revisado y comprendido la documentación de autenticación y autorización." }
+    ];
+    const ITEMS_PER_PAGE = 2;
+    let currentPage = 1;
+    let camposEstado = {};
 
-        // Función para insertar un nodo en la posición del cursor
-        function insertAtCursor(editableDiv, node) {
-            let sel, range;
-            if (window.getSelection) {
-                sel = window.getSelection();
-                if (sel.getRangeAt && sel.rangeCount) {
-                    range = sel.getRangeAt(0);
-                    range.deleteContents();
-                    range.insertNode(node);
-                    // Mover el cursor después de la imagen
-                    range.setStartAfter(node);
-                    range.collapse(true);
-                    sel.removeAllRanges();
-                    sel.addRange(range);
-                }
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('sidebar');
+      const muesca = document.getElementById('sidebarMuesca');
+      const muescaIcon = document.getElementById('sidebarMuescaIcon');
+      const muescaShow = document.getElementById('sidebarMuescaShow');
+      let sidebarOculta = false;
+      function actualizarMuesca() {
+        if (sidebarOculta) {
+          muesca.style.display = 'none';
+          muescaShow.style.display = 'flex';
+        } else {
+          muesca.style.display = 'flex';
+          muescaShow.style.display = 'none';
+          muescaIcon.innerHTML = "&#x25C0;";
+        }
+      }
+      muesca.onclick = function() {
+        sidebarOculta = true;
+        sidebar.classList.add('sidebar-oculta');
+        actualizarMuesca();
+      };
+      muescaShow.onclick = function() {
+        sidebarOculta = false;
+        sidebar.classList.remove('sidebar-oculta');
+        actualizarMuesca();
+      };
+      actualizarMuesca();
+    });
+
+    function renderSidebar() {
+      const sidebarMenu = document.getElementById('sidebarMenu');
+      sidebarMenu.innerHTML = '';
+      for (let idx = 0; idx < checklistItems.length; idx++) {
+        const item = checklistItems[idx];
+        let completo = false;
+        if (camposEstado[`aprobado_${item.id}`] && camposEstado[`evidencias_${item.id}`]) {
+          completo = camposEstado[`aprobado_${item.id}`] !== '' && camposEstado[`evidencias_${item.id}`].trim() !== '';
+        }
+        let clase = 'nav-punto';
+        if (currentPage === Math.floor(idx / ITEMS_PER_PAGE) + 1) clase += ' active';
+        if (completo) clase += ' completo';
+        else clase += ' incompleto';
+        sidebarMenu.innerHTML += `
+          <button type="button" class="${clase}" onclick="goToPage(${Math.floor(idx / ITEMS_PER_PAGE) + 1})" title="Ir al punto ${idx + 1}">
+            <span style="display:inline-block;width:22px;text-align:right;font-weight:bold;">${idx + 1}.</span>
+            <span style="flex:1 1 auto; text-align:left; margin-left:6px;">${item.texto}</span>
+            <span style="font-size:1.1em; margin-left:8px;">${completo ? '✔️' : '⚠️'}</span>
+          </button>
+        `;
+      }
+    }
+    function renderChecklist() {
+      const container = document.getElementById('checklist');
+      container.innerHTML = '';
+      const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, checklistItems.length);
+      checklistItems.slice(startIdx, endIdx).forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'checklist-item';
+        div.setAttribute('id', `item_${item.id}`);
+        div.innerHTML = `
+          <label>
+            <span class="numero-punto">${startIdx + idx + 1}.</span>
+            <span id="alerta_${item.id}" class="punto-faltante" style="display:none;" title="Falta completar este punto">&#9888;</span>
+            ${item.texto}
+          </label>
+          <div class="campo-espera"><strong>¿Qué se espera?</strong><br>${item.esperado}</div>
+          <div style="display:flex;align-items:center;gap:18px;margin-bottom:4px;">
+            <select name="aprobado_${item.id}" required onchange="guardarEstadoCampo(${item.id})" style="margin-right:18px;">
+              <option value="">Selecciona</option>
+              <option value="Aprobado">Aprobado</option>
+              <option value="No aprobado">No aprobado</option>
+              <option value="No aplica">No aplica</option>
+            </select>
+            <div class="toolbar-evidencia">
+              <button type="button" title="Negrita" onclick="formatoEvidencia(this, 'bold')"><b>B</b></button>
+              <button type="button" title="Cursiva" onclick="formatoEvidencia(this, 'italic')"><i>I</i></button>
+              <button type="button" title="Subrayado" onclick="formatoEvidencia(this, 'underline')"><u>U</u></button>
+              <button type="button" title="Alinear a la izquierda" onclick="formatoEvidencia(this, 'justifyLeft')">&#8676;</button>
+              <button type="button" title="Centrar" onclick="formatoEvidencia(this, 'justifyCenter')">&#8596;</button>
+              <button type="button" title="Alinear a la derecha" onclick="formatoEvidencia(this, 'justifyRight')">&#8677;</button>
+              <button type="button" title="Lista numerada" onclick="formatoEvidencia(this, 'insertOrderedList')">1.</button>
+              <button type="button" title="Lista con viñetas" onclick="formatoEvidencia(this, 'insertUnorderedList')">&#8226;</button>
+              <button type="button" title="Enlace" onclick="formatoEvidencia(this, 'createLink')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="vertical-align:middle;" viewBox="0 0 16 16"><path fill="none" stroke="#222" stroke-width="1.5" d="M5.5 10.5l5-5m-2.5 7a2.5 2.5 0 0 1-1.77-4.27l1.5-1.5a2.5 2.5 0 1 1 3.54 3.54l-1.5 1.5A2.5 2.5 0 0 1 8 12.5zm-3-9a2.5 2.5 0 0 1 3.54 0l1.5 1.5a2.5 2.5 0 1 1-3.54 3.54l-1.5-1.5A2.5 2.5 0 0 1 5 3.5z"/></svg>
+              </button>
+              <input type="color" title="Color de texto" onchange="formatoEvidencia(this, 'foreColor')">
+            </div>
+          </div>
+          <div contenteditable="true" class="evidencias-editable" name="observaciones_${item.id}" data-id="${item.id}" spellcheck="true" aria-label="Evidencias (puede pegar imágenes y texto)"></div>
+          <div class="char-count" id="contador_${item.id}"></div>
+        `;
+        container.appendChild(div);
+      });
+      cargarCambios();
+      renderSidebar();
+      renderPagination();
+      inicializarEvidenciasEditables();
+    }
+
+    // Barra de formato tipo Word mejorada
+    function formatoEvidencia(btn, comando) {
+      let div;
+      if (comando === 'foreColor') {
+        div = btn.parentElement.parentElement.parentElement.querySelector('.evidencias-editable');
+        div.focus();
+        document.execCommand('foreColor', false, btn.value);
+        return;
+      }
+      div = btn.parentElement.parentElement.parentElement.querySelector('.evidencias-editable');
+      div.focus();
+      if (comando === 'createLink') {
+        let url = prompt('URL del enlace:');
+        if (url) document.execCommand('createLink', false, url);
+      } else {
+        document.execCommand(comando, false, null);
+      }
+    }
+
+    // Edición de imágenes: rotar, voltear, eliminar
+    function editarImagen(btn, accion) {
+      const wrapper = btn.closest('.img-resizable-wrapper');
+      const img = wrapper.querySelector('img');
+      if (accion === 'rotar') {
+        let rot = parseInt(img.getAttribute('data-rot') || '0', 10);
+        rot = (rot + 90) % 360;
+        img.style.transform = `rotate(${rot}deg) scaleX(${img.getAttribute('data-flipH') === '1' ? -1 : 1})`;
+        img.setAttribute('data-rot', rot);
+      } else if (accion === 'flipH') {
+        let flip = img.getAttribute('data-flipH') === '1' ? '0' : '1';
+        img.style.transform = `rotate(${img.getAttribute('data-rot') || 0}deg) scaleX(${flip === '1' ? -1 : 1})`;
+        img.setAttribute('data-flipH', flip);
+      } else if (accion === 'eliminar') {
+        wrapper.remove();
+      }
+    }
+
+    // Permite redimensionar, mover y editar imágenes dentro del campo de evidencias
+    function inicializarEvidenciasEditables() {
+      document.querySelectorAll('.evidencias-editable').forEach(div => {
+        div.oninput = function() {
+          guardarEstadoCampo(div.dataset.id);
+        };
+        div.onpaste = function(e) {
+          const items = (e.clipboardData || window.clipboardData).items;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+              const file = items[i].getAsFile();
+              const reader = new FileReader();
+              reader.onload = function(event) {
+                const sel = window.getSelection();
+                const range = sel.getRangeAt(0);
+                const wrapper = document.createElement('span');
+                wrapper.className = 'img-resizable-wrapper';
+                wrapper.contentEditable = "false";
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                // Asignar tamaño al 70% del natural
+                img.onload = function() {
+                  img.style.width = (img.naturalWidth * 0.7) + "px";
+                  img.style.height = (img.naturalHeight * 0.7) + "px";
+                  wrapper.style.width = img.style.width;
+                  wrapper.style.height = img.style.height;
+                };
+                img.setAttribute('draggable', 'true');
+                wrapper.appendChild(img);
+
+                // Barra de edición de imagen
+                const toolbar = document.createElement('span');
+                toolbar.className = 'img-toolbar';
+                toolbar.innerHTML = `
+                  <button type="button" title="Rotar 90°" onclick="editarImagen(this, 'rotar')">⟳</button>
+                  <button type="button" title="Voltear horizontal" onclick="editarImagen(this, 'flipH')">⇋</button>
+                  <button type="button" title="Eliminar imagen" onclick="editarImagen(this, 'eliminar')">🗑️</button>
+                `;
+                wrapper.appendChild(toolbar);
+
+                const handle = document.createElement('span');
+                handle.className = 'img-resize-handle';
+                wrapper.appendChild(handle);
+                range.insertNode(wrapper);
+
+                // Selección para resize y edición
+                img.onclick = function(e) {
+                  document.querySelectorAll('.img-resizable-wrapper').forEach(w => {
+                    w.classList.remove('selected');
+                  });
+                  wrapper.classList.add('selected');
+                  e.stopPropagation();
+                };
+
+                // Resize mejorado (sin límites)
+                handle.onmousedown = function(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  wrapper.classList.add('selected');
+                  let startX = e.clientX;
+                  let startY = e.clientY;
+                  let startWidth = img.offsetWidth;
+                  let startHeight = img.offsetHeight;
+
+                  function mousemove(ev) {
+                    let newWidth = Math.max(30, startWidth + (ev.clientX - startX));
+                    let newHeight = Math.max(30, startHeight + (ev.clientY - startY));
+                    img.style.width = newWidth + "px";
+                    img.style.height = newHeight + "px";
+                    wrapper.style.width = newWidth + "px";
+                    wrapper.style.height = newHeight + "px";
+                  }
+                  function mouseup() {
+                    document.removeEventListener('mousemove', mousemove);
+                    document.removeEventListener('mouseup', mouseup);
+                    guardarEstadoCampo(div.dataset.id);
+                  }
+                  document.addEventListener('mousemove', mousemove);
+                  document.addEventListener('mouseup', mouseup);
+                };
+
+                // Drag & drop dentro del campo
+                img.ondragstart = function(ev) {
+                  ev.dataTransfer.setData('text/plain', '');
+                  window._draggedImg = wrapper;
+                };
+                div.ondragover = function(ev) {
+                  ev.preventDefault();
+                };
+                div.ondrop = function(ev) {
+                  ev.preventDefault();
+                  const dropRange = document.caretRangeFromPoint(ev.clientX, ev.clientY);
+                  if (window._draggedImg && dropRange) {
+                    dropRange.insertNode(window._draggedImg);
+                    window._draggedImg = null;
+                    guardarEstadoCampo(div.dataset.id);
+                  }
+                };
+                guardarEstadoCampo(div.dataset.id);
+              };
+              reader.readAsDataURL(file);
+              e.preventDefault();
             }
+          }
+        };
+        // Permitir seleccionar imagen para resize y edición
+        div.addEventListener('click', function(e) {
+          if (!e.target.closest('.img-resizable-wrapper')) {
+            document.querySelectorAll('.img-resizable-wrapper').forEach(w => w.classList.remove('selected'));
+          }
+        });
+      });
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(checklistItems.length / ITEMS_PER_PAGE);
+      const pagDiv = document.getElementById('pagination');
+      pagDiv.innerHTML = '';
+      pagDiv.innerHTML += `<button onclick="prevPage()" ${currentPage === 1 ? 'disabled' : ''}>&lt; Anterior</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        pagDiv.innerHTML += `<button onclick="goToPage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
+      }
+      pagDiv.innerHTML += `<button onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''}>Siguiente &gt;</button>`;
+    }
+    function guardarEstadoCampo(id) {
+      const aprobado = document.querySelector(`[name="aprobado_${id}"]`);
+      const evidenciasDiv = document.querySelector(`.evidencias-editable[name="observaciones_${id}"]`);
+      camposEstado[`aprobado_${id}`] = aprobado ? aprobado.value : '';
+      camposEstado[`evidencias_${id}`] = evidenciasDiv ? evidenciasDiv.innerHTML : '';
+      localStorage.setItem('certificacionChecklistCampos', JSON.stringify(camposEstado));
+      renderSidebar();
+    }
+    function goToPage(page) {
+      guardarCamposPaginaActual();
+      currentPage = page;
+      renderChecklist();
+    }
+    function prevPage() {
+      guardarCamposPaginaActual();
+      if (currentPage > 1) {
+        currentPage--;
+        renderChecklist();
+      }
+    }
+    function nextPage() {
+      guardarCamposPaginaActual();
+      const totalPages = Math.ceil(checklistItems.length / ITEMS_PER_PAGE);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderChecklist();
+      }
+    }
+    function guardarCamposPaginaActual() {
+      const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, checklistItems.length);
+      checklistItems.slice(startIdx, endIdx).forEach(item => {
+        guardarEstadoCampo(item.id);
+      });
+    }
+    function actualizarContadorEditable(div, id) {
+      // Ya no hay límite ni contador visible
+    }
+    function validarCampos() {
+      let valido = true;
+      let msg = '';
+      let faltantes = [];
+      checklistItems.forEach(item => {
+        const aprobado = camposEstado[`aprobado_${item.id}`];
+        const evidencias = camposEstado[`evidencias_${item.id}`];
+        const alerta = document.getElementById(`alerta_${item.id}`);
+        let incompleto = false;
+        if (!aprobado) { valido = false; incompleto = true; }
+        // Considera vacío si no hay texto ni imágenes
+        const temp = document.createElement('div');
+        temp.innerHTML = evidencias || '';
+        const hasContent = temp.innerText.trim().length > 0 || temp.querySelector('img');
+        if (!hasContent) { valido = false; incompleto = true; }
+        if (alerta) {
+          if (incompleto) { alerta.style.display = 'inline-block'; }
+          else { alerta.style.display = 'none'; }
+        }
+        if (incompleto) { faltantes.push(item.id); }
+      });
+      if (!valido) {
+        msg = 'Faltan puntos por completar: ' + faltantes.map(id => id).join(', ');
+      }
+      mostrarMensaje(msg, valido ? 'success' : 'error');
+      return valido;
+    }
+    function mostrarMensaje(msg, tipo) {
+      const formMsg = document.getElementById('formMsg');
+      if (msg) {
+        formMsg.innerHTML = `<span class="${tipo}">${msg}</span>`;
+      } else {
+        formMsg.innerHTML = '';
+      }
+    }
+    function guardarCambios() {
+      guardarCamposPaginaActual();
+      localStorage.setItem('certificacionChecklistCampos', JSON.stringify(camposEstado));
+      mostrarMensaje('Cambios guardados correctamente.', 'success');
+      renderSidebar();
+    }
+    function cargarCambios() {
+      camposEstado = JSON.parse(localStorage.getItem('certificacionChecklistCampos') || '{}');
+      const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, checklistItems.length);
+      checklistItems.slice(startIdx, endIdx).forEach(item => {
+        if (camposEstado[`aprobado_${item.id}`]) {
+          document.querySelector(`[name="aprobado_${item.id}"]`).value = camposEstado[`aprobado_${item.id}`];
+        }
+        if (camposEstado[`evidencias_${item.id}`]) {
+          const obsDiv = document.querySelector(`.evidencias-editable[name="observaciones_${item.id}"]`);
+          if (obsDiv) {
+            obsDiv.innerHTML = camposEstado[`evidencias_${item.id}`];
+            actualizarContadorEditable(obsDiv, item.id);
+          }
+        }
+      });
+    }
+
+    // Exportar PDF con TODOS los puntos, sin cuadro negro al final
+    function exportarPDF() {
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-99999px';
+      tempDiv.style.top = '0';
+      tempDiv.style.width = '900px';
+      tempDiv.style.background = '#fff';
+      tempDiv.style.padding = '24px 32px';
+      tempDiv.style.zIndex = '-1';
+
+      tempDiv.innerHTML = `
+        <h2 style="color:#3b4a6b;text-align:center;margin-bottom:8px;font-weight:700;letter-spacing:1px;">Checklist de Certificación para Consumo de API</h2>
+      `;
+
+      checklistItems.forEach((item, idx) => {
+        const aprobado = camposEstado[`aprobado_${item.id}`] || '';
+        const evidencias = camposEstado[`evidencias_${item.id}`] || '';
+        tempDiv.innerHTML += `
+          <div style="border-bottom:1px solid #e3e3e3;padding:18px 0 10px 0;">
+            <div style="font-weight:600;color:#222;margin-bottom:6px;font-size:1.04em;">
+              <span style="font-weight:bold;">${idx + 1}.</span>
+              ${item.texto}
+            </div>
+            <div style="background:#e3eafc;border:1px solid #b6c6e3;border-radius:5px;padding:8px 12px;color:#3b4a6b;margin-bottom:8px;font-size:0.98em;">
+              <strong>¿Qué se espera?</strong><br>${item.esperado}
+            </div>
+            <div><strong>Estado:</strong> ${aprobado ? aprobado : '<span style="color:#dc3545;">Sin seleccionar</span>'}</div>
+            <div><strong>Evidencias:</strong><br>${evidencias ? evidencias : '<span style="color:#dc3545;">Sin evidencias</span>'}</div>
+          </div>
+        `;
+      });
+
+      document.body.appendChild(tempDiv);
+
+      html2canvas(tempDiv, {
+        scale: 1,
+        backgroundColor: "#fff",
+        useCORS: true,
+        windowWidth: tempDiv.scrollWidth,
+        windowHeight: tempDiv.scrollHeight,
+        scrollY: -window.scrollY
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdf = new window.jspdf.jsPDF('p', 'pt', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = pageWidth - 40;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        let y = 0;
+        let page = 0;
+        let remainingHeight = imgHeight;
+        const pageCanvasHeight = canvas.height * (pageHeight - 40) / imgHeight;
+
+        while (remainingHeight > 0) {
+          let sliceHeight = Math.min(pageCanvasHeight, canvas.height - y);
+          let pageCanvas = document.createElement('canvas');
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = sliceHeight;
+          let ctx2 = pageCanvas.getContext('2d');
+          ctx2.fillStyle = "#fff";
+          ctx2.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+          ctx2.drawImage(
+            canvas,
+            0, y,
+            canvas.width, sliceHeight,
+            0, 0,
+            canvas.width, sliceHeight
+          );
+          let pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+          if (page > 0) pdf.addPage();
+          let drawHeight = (sliceHeight * imgWidth) / canvas.width;
+          pdf.addImage(pageImgData, 'JPEG', 20, 20, imgWidth, drawHeight);
+          y += sliceHeight;
+          remainingHeight -= (pageHeight - 40);
+          page++;
         }
 
-        // Guardar cambios en localStorage
-        document.getElementById('saveBtn').onclick = function() {
-            const data = {};
-            for (let i = 1; i <= 6; i++) {
-                data['status' + i] = document.querySelector(`select[name="status${i}"]`).value;
-                data['evidence' + i] = document.querySelector(`.evidence-box[data-idx="${i}"]`).innerHTML;
-            }
-            localStorage.setItem('checklistAPI', JSON.stringify(data));
-            alert('Cambios guardados localmente.');
-        };
+        pdf.save('checklist_certificacion.pdf');
+        document.body.removeChild(tempDiv);
+      });
+    }
 
-        // Cargar cambios desde localStorage
-        window.addEventListener('DOMContentLoaded', function() {
-            const data = localStorage.getItem('checklistAPI');
-            if (data) {
-                try {
-                    const obj = JSON.parse(data);
-                    for (let i = 1; i <= 6; i++) {
-                        if (obj['status' + i]) document.querySelector(`select[name="status${i}"]`).value = obj['status' + i];
-                        if (obj['evidence' + i]) document.querySelector(`.evidence-box[data-idx="${i}"]`).innerHTML = obj['evidence' + i];
-                    }
-                } catch {}
-            }
-        });
-
-        // Validación de evidencias y estados para puntos aprobados
-        function validarEvidenciasYEstados(marcarAlertas = false) {
-            let faltan = [];
-            for (let i = 1; i <= 6; i++) {
-                const select = document.querySelector(`select[name="status${i}"]`);
-                const status = select.value;
-                const box = document.querySelector(`.evidence-box[data-idx="${i}"]`);
-                const htmlData = box.innerHTML.trim();
-                const cleanHtml = htmlData.replace(/<[^\/>][^>]*><\/[^>]+>/g, '').trim();
-                // Remover alerta previa
-                select.classList.remove('alerta');
-                box.classList.remove('alerta');
-                let alertaLabel = box.parentElement.querySelector('.alerta-label');
-                if (alertaLabel) alertaLabel.remove();
-
-                if (!status) {
-                    if (marcarAlertas) {
-                        select.classList.add('alerta');
-                        let label = document.createElement('span');
-                        label.className = 'alerta-label';
-                        label.innerText = 'Selecciona un estado';
-                        select.parentElement.insertBefore(label, select.nextSibling);
-                    }
-                    faltan.push({idx: i, tipo: 'estado'});
-                } else if (status === 'Pendiente') {
-                    if (marcarAlertas) {
-                        select.classList.add('alerta');
-                        let label = document.createElement('span');
-                        label.className = 'alerta-label';
-                        label.innerText = 'No puede estar en estado Pendiente para generar PDF';
-                        select.parentElement.insertBefore(label, select.nextSibling);
-                    }
-                    faltan.push({idx: i, tipo: 'pendiente'});
-                } else if (status === 'Aprobado' && (!cleanHtml || cleanHtml === '<br>')) {
-                    if (marcarAlertas) {
-                        box.classList.add('alerta');
-                        let label = document.createElement('span');
-                        label.className = 'alerta-label';
-                        label.innerText = 'Debes ingresar evidencia para puntos aprobados';
-                        box.parentElement.appendChild(label);
-                    }
-                    faltan.push({idx: i, tipo: 'evidencia'});
-                }
-            }
-            return faltan;
-        }
-
-        // Generar PDF con jsPDF y html2canvas usando el formulario (multipágina)
-        document.getElementById('pdfBtn').onclick = function() {
-            let faltan = validarEvidenciasYEstados(true);
-            if (faltan.length > 0) {
-                alert('Corrige los campos resaltados antes de generar el PDF.');
-                return;
-            }
-            document.querySelector('.btn-group').style.display = 'none';
-            html2canvas(document.querySelector('.container'), {useCORS: true, scale: 2}).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new window.jspdf.jsPDF({
-                    orientation: 'p',
-                    unit: 'pt',
-                    format: 'a4'
-                });
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imgWidth = pageWidth - 40;
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-
-                let pageImgHeight = pageHeight - 40;
-                let sHeight = Math.floor((pageImgHeight * canvas.width) / imgWidth);
-                let sWidth = canvas.width;
-                let sX = 0;
-                let sY = 0;
-                let remainingHeight = imgHeight;
-                let pageCount = 0;
-
-                if (imgHeight <= pageImgHeight) {
-                    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
-                } else {
-                    let canvasPage = document.createElement('canvas');
-                    let ctx = canvasPage.getContext('2d');
-                    while (remainingHeight > 0) {
-                        canvasPage.width = sWidth;
-                        canvasPage.height = sHeight;
-                        ctx.clearRect(0, 0, sWidth, sHeight);
-                        ctx.drawImage(canvas, sX, sY, sWidth, sHeight, 0, 0, sWidth, sHeight);
-                        let pageData = canvasPage.toDataURL('image/png');
-                        if (pageCount > 0) pdf.addPage();
-                        pdf.addImage(pageData, 'PNG', 20, 20, imgWidth, pageImgHeight);
-                        remainingHeight -= pageImgHeight;
-                        sY += sHeight;
-                        pageCount++;
-                    }
-                }
-                pdf.save('chequeo-api.pdf');
-                document.querySelector('.btn-group').style.display = 'flex';
-            });
-        };
-
-        const form = document.getElementById('checklistForm');
-        const resultDiv = document.getElementById('result');
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            resultDiv.style.display = 'none';
-            resultDiv.className = 'result';
-
-            // Limpiar alertas previas
-            validarEvidenciasYEstados(false);
-            let faltan = validarEvidenciasYEstados(true);
-            if (faltan.length > 0) {
-                resultDiv.innerHTML = `<b>Corrige los campos resaltados antes de finalizar el chequeo.</b>`;
-                resultDiv.className = 'result incomplete';
-                resultDiv.style.display = 'block';
-                return;
-            }
-
-            const items = [];
-            for (let i = 1; i <= 6; i++) {
-                const status = form['status' + i].value;
-                const box = document.querySelector('.evidence-box[data-idx="' + i + '"]');
-                const htmlData = box.innerHTML.trim();
-                const cleanHtml = htmlData.replace(/<[^\/>][^>]*><\/[^>]+>/g, '').trim();
-                items.push({
-                    label: box.parentElement.querySelector('label').textContent,
-                    status,
-                    evidence: cleanHtml
-                });
-            }
-
-            let resumen = '<strong>Resumen de la lista de chequeo:</strong><ul>';
-            items.forEach((item) => {
-                resumen += `<li><strong>${item.label}</strong><br>Estado: ${item.status}`;
-                if(item.evidence && item.evidence !== '<br>') {
-                    resumen += `<br><span style="color:#888">Evidencia:</span><br>${item.evidence}`;
-                }
-                resumen += `</li>`;
-            });
-            resumen += '</ul>';
-
-            resultDiv.innerHTML = resumen + `<br><b>¡Lista de chequeo completada!</b>`;
-            resultDiv.className = 'result';
-            resultDiv.style.display = 'block';
-        });
-    </script>
+    window.onload = function() {
+      camposEstado = JSON.parse(localStorage.getItem('certificacionChecklistCampos') || '{}');
+      renderChecklist();
+    };
+  </script>
 </body>
 </html>
