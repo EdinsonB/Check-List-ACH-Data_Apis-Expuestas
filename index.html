@@ -20,20 +20,35 @@
     .sidebar .nav-punto.completo { color: #198754; }
     .sidebar .nav-punto.incompleto { color: #dc3545; }
     .sidebar .nav-punto:not(.active):hover { background: #d6e6fa; color: #3b4a6b; }
-    .container { 
-      flex: 1; 
-      max-width: 900px; 
-      margin: 30px auto; 
-      background: #e3eafc; 
-      border-radius: 12px; 
-      padding: 24px 32px; 
-      box-shadow: 0 4px 24px #0003; 
-      transition: box-shadow 0.2s; 
-      min-width: 0; 
-      position: relative; 
-      z-index: 1; 
-      color: #222; 
+    .container { max-width: 780px; margin: 0 auto; padding: 20px 10px 80px 10px; flex: 1; }
+    
+    /* Botón discreto para limpiar evidencias - LATERAL DERECHO */
+    .btn-limpiar-discreto {
+      position: fixed !important;
+      top: 50% !important;
+      right: 20px !important;
+      transform: translateY(-50%) !important;
+      width: 36px;
+      height: 36px;
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+      transition: all 0.2s;
+      z-index: 9999 !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    .btn-limpiar-discreto:hover {
+      background: #b02a37;
+      transform: translateY(-50%) scale(1.1) !important;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    }
+    
     h2 { color: #3b4a6b; text-align: center; margin-bottom: 28px; font-weight: 700; letter-spacing: 1px; }
     .checklist-item { border-bottom: 1px solid #b6c6e3; padding: 18px 0 10px 0; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 0; transition: background 0.2s; position: relative; }
     .checklist-item:last-child { border-bottom: none; }
@@ -49,7 +64,7 @@
       align-items: center;
       gap: 4px;
     }
-    .toolbar-evidencia button, .toolbar-evidencia input[type="color"] {
+    .toolbar-evidencia button {
       background: #fff;
       border: 1px solid #b6c6e3;
       border-radius: 4px;
@@ -65,31 +80,72 @@
       align-items: center;
       justify-content: center;
     }
-    .toolbar-evidencia button:hover, .toolbar-evidencia input[type="color"]:hover {
+    .toolbar-evidencia button:hover {
       background: #e3eafc;
     }
-    .toolbar-evidencia input[type="color"] {
-      padding: 0;
-      border: none;
-      background: none;
-      width: 32px;
+    /* Selector de colores básicos simplificado */
+    .color-selector {
+      position: relative;
+      display: inline-block;
+    }
+    .color-selector-btn {
+      background: #fff;
+      border: 1px solid #b6c6e3;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      padding: 2px 7px;
+      color: #3b4a6b;
+      transition: background 0.2s;
       height: 32px;
       min-width: 32px;
-      margin: 0 0 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .color-selector-btn:hover {
+      background: #e3eafc;
+    }
+    .color-palette {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      border: 1px solid #b6c6e3;
+      border-radius: 4px;
+      padding: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1000;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    .color-palette.show {
+      display: grid;
+    }
+    .color-option {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .color-option:hover {
+      border: 2px solid #333;
     }
     .toolbar-evidencia svg {
       pointer-events: none;
     }
     .checklist-item [contenteditable="true"] {
       width: 100%;
-      min-height: 38px;
-      max-height: 240px;
+      min-height: 228px; /* Aumentado 100% más de 114px */
+      max-height: 1440px; /* Aumentado 100% más de 720px */
       border-radius: 6px;
       border: 1.5px solid #198754;
       background: #fff;
       color: #3b4a6b;
       font-size: 1em;
-      padding: 7px 10px;
+      padding: 40px 60px; /* Aumentado padding */
       margin-bottom: 4px;
       transition: border-color 0.2s, background 0.2s, color 0.2s;
       outline: none;
@@ -170,7 +226,7 @@
     .pagination button.active, .pagination button:focus { background: #6e7bb9; color: #fff; font-weight: bold; outline: none; }
     .pagination button:disabled { background: #f1f1f1; color: #aaa; cursor: not-allowed; }
     @media (max-width: 900px) {
-      .container { max-width: 99vw; padding: 12px 4vw; }
+      .container { max-width: 99vw; padding: 12px 4vw 80px 4vw; }
       .main-layout { flex-direction: column; }
       .sidebar { flex-direction: row; min-width: 0; max-width: 100vw; border-radius: 0 0 18px 18px; padding: 12px 4vw; overflow-x: auto; gap: 0; }
       .sidebar h3 { display: none; }
@@ -178,12 +234,14 @@
       .sidebar .nav-punto { min-width: 120px; justify-content: flex-start; padding: 10px 8px; font-size: 0.97em; border-left: none; border-bottom: 4px solid transparent; border-radius: 0; white-space: normal; align-items: flex-start; }
       .sidebar .nav-punto.active, .sidebar .nav-punto:focus { border-left: none; border-bottom: 4px solid #6e7bb9; }
       .sidebar-muesca, .sidebar-muesca-flotante { top: 10px; right: -14px; }
+      .btn-limpiar-discreto { right: 10px !important; }
     }
     @media (max-width: 600px) {
-      .container { padding: 8px 2vw; }
+      .container { padding: 8px 2vw 80px 2vw; }
       .checklist-item { flex-direction: column; gap: 0; }
       .checklist-item select { width: 100%; min-width: 0; }
       .sidebar .nav-punto { font-size: 0.93em; min-width: 180px; }
+      .btn-limpiar-discreto { right: 5px !important; }
     }
   </style>
 </head>
@@ -193,7 +251,7 @@
       <div class="sidebar-muesca" id="sidebarMuesca" title="Ocultar barra lateral">
         <span id="sidebarMuescaIcon">&#x25C0;</span>
       </div>
-      <h3>Puntos</h3>
+      <h3>Puntos de Validación </h3>
       <div class="sidebar-menu" id="sidebarMenu"></div>
     </nav>
     <div class="sidebar-muesca-flotante" id="sidebarMuescaShow" title="Mostrar barra lateral" style="display:none;">
@@ -212,6 +270,12 @@
       </form>
     </div>
   </div>
+  
+  <!-- Botón discreto para limpiar evidencias - LATERAL DERECHO -->
+  <button type="button" class="btn-limpiar-discreto" id="btnLimpiarEvidenciasDiscreto" title="Limpiar evidencias">
+    🗑️
+  </button>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
@@ -231,12 +295,22 @@
     let currentPage = 1;
     let camposEstado = {};
 
+    // Cerrar paleta de colores al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.color-selector')) {
+        document.querySelectorAll('.color-palette').forEach(palette => {
+          palette.classList.remove('show');
+        });
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
       const sidebar = document.getElementById('sidebar');
       const muesca = document.getElementById('sidebarMuesca');
       const muescaIcon = document.getElementById('sidebarMuescaIcon');
       const muescaShow = document.getElementById('sidebarMuescaShow');
       let sidebarOculta = false;
+      
       function actualizarMuesca() {
         if (sidebarOculta) {
           muesca.style.display = 'none';
@@ -247,17 +321,63 @@
           muescaIcon.innerHTML = "&#x25C0;";
         }
       }
+      
       muesca.onclick = function() {
         sidebarOculta = true;
         sidebar.classList.add('sidebar-oculta');
         actualizarMuesca();
       };
+      
       muescaShow.onclick = function() {
         sidebarOculta = false;
         sidebar.classList.remove('sidebar-oculta');
         actualizarMuesca();
       };
+      
       actualizarMuesca();
+
+      // Botón discreto para limpiar evidencias seleccionadas
+      const btnLimpiarDiscreto = document.getElementById('btnLimpiarEvidenciasDiscreto');
+      if (btnLimpiarDiscreto) {
+        btnLimpiarDiscreto.onclick = function() {
+          const evidenciasVisibles = document.querySelectorAll('.evidencias-editable');
+          let algunaSeleccionada = false;
+          let elementosALimpiar = [];
+          
+          evidenciasVisibles.forEach(div => {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              if (div.contains(range.commonAncestorContainer) || div === range.commonAncestorContainer) {
+                algunaSeleccionada = true;
+                elementosALimpiar.push(div);
+              }
+            }
+          });
+          
+          if (algunaSeleccionada) {
+            if (confirm('¿Seguro que deseas limpiar las evidencias seleccionadas?')) {
+              elementosALimpiar.forEach(div => {
+                // Limpiar evidencias
+                div.innerHTML = '';
+                
+                // Cambiar el select a "Selecciona..."
+                const itemId = div.dataset.id;
+                const selectElement = document.querySelector(`[name="aprobado_${itemId}"]`);
+                if (selectElement) {
+                  selectElement.value = '';
+                }
+                
+                // Guardar cambios
+                guardarEstadoCampo(itemId);
+              });
+              mostrarMensaje('Evidencias seleccionadas limpiadas y estado reiniciado.', 'success');
+            }
+          } else {
+            mostrarMensaje('Selecciona texto o posiciona el cursor en las evidencias que deseas limpiar.', 'error');
+          }
+        };
+      }
     });
 
     function renderSidebar() {
@@ -282,6 +402,7 @@
         `;
       }
     }
+    
     function renderChecklist() {
       const container = document.getElementById('checklist');
       container.innerHTML = '';
@@ -300,7 +421,7 @@
           <div class="campo-espera"><strong>¿Qué se espera?</strong><br>${item.esperado}</div>
           <div style="display:flex;align-items:center;gap:18px;margin-bottom:4px;">
             <select name="aprobado_${item.id}" required onchange="guardarEstadoCampo(${item.id})" style="margin-right:18px;">
-              <option value="">Selecciona</option>
+              <option value="">Selecciona...</option>
               <option value="Aprobado">Aprobado</option>
               <option value="No aprobado">No aprobado</option>
               <option value="No aplica">No aplica</option>
@@ -314,10 +435,20 @@
               <button type="button" title="Alinear a la derecha" onclick="formatoEvidencia(this, 'justifyRight')">&#8677;</button>
               <button type="button" title="Lista numerada" onclick="formatoEvidencia(this, 'insertOrderedList')">1.</button>
               <button type="button" title="Lista con viñetas" onclick="formatoEvidencia(this, 'insertUnorderedList')">&#8226;</button>
-              <button type="button" title="Enlace" onclick="formatoEvidencia(this, 'createLink')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="vertical-align:middle;" viewBox="0 0 16 16"><path fill="none" stroke="#222" stroke-width="1.5" d="M5.5 10.5l5-5m-2.5 7a2.5 2.5 0 0 1-1.77-4.27l1.5-1.5a2.5 2.5 0 1 1 3.54 3.54l-1.5 1.5A2.5 2.5 0 0 1 8 12.5zm-3-9a2.5 2.5 0 0 1 3.54 0l1.5 1.5a2.5 2.5 0 1 1-3.54 3.54l-1.5-1.5A2.5 2.5 0 0 1 5 3.5z"/></svg>
-              </button>
-              <input type="color" title="Color de texto" onchange="formatoEvidencia(this, 'foreColor')">
+              <button type="button" title="Enlace" onclick="formatoEvidencia(this, 'createLink')">🔗</button>
+              <div class="color-selector">
+                <button type="button" class="color-selector-btn" title="Color de texto" onclick="toggleColorPalette(this)">🎨</button>
+                <div class="color-palette">
+                  <div class="color-option" style="background-color: #000000;" onclick="aplicarColor(this, '#000000')"></div>
+                  <div class="color-option" style="background-color: #ff0000;" onclick="aplicarColor(this, '#ff0000')"></div>
+                  <div class="color-option" style="background-color: #00ff00;" onclick="aplicarColor(this, '#00ff00')"></div>
+                  <div class="color-option" style="background-color: #0000ff;" onclick="aplicarColor(this, '#0000ff')"></div>
+                  <div class="color-option" style="background-color: #ffff00;" onclick="aplicarColor(this, '#ffff00')"></div>
+                  <div class="color-option" style="background-color: #ff00ff;" onclick="aplicarColor(this, '#ff00ff')"></div>
+                  <div class="color-option" style="background-color: #00ffff;" onclick="aplicarColor(this, '#00ffff')"></div>
+                  <div class="color-option" style="background-color: #ffffff; border-color: #000;" onclick="aplicarColor(this, '#ffffff')"></div>
+                </div>
+              </div>
             </div>
           </div>
           <div contenteditable="true" class="evidencias-editable" name="observaciones_${item.id}" data-id="${item.id}" spellcheck="true" aria-label="Evidencias (puede pegar imágenes y texto)"></div>
@@ -331,16 +462,33 @@
       inicializarEvidenciasEditables();
     }
 
+    // Función para mostrar/ocultar paleta de colores
+    function toggleColorPalette(btn) {
+      const palette = btn.nextElementSibling;
+      const isVisible = palette.classList.contains('show');
+      
+      // Cerrar todas las paletas
+      document.querySelectorAll('.color-palette').forEach(p => p.classList.remove('show'));
+      
+      // Mostrar la paleta actual si no estaba visible
+      if (!isVisible) {
+        palette.classList.add('show');
+      }
+    }
+
+    // Función para aplicar color seleccionado
+    function aplicarColor(colorDiv, color) {
+      const evidenciaDiv = colorDiv.closest('.checklist-item').querySelector('.evidencias-editable');
+      evidenciaDiv.focus();
+      document.execCommand('foreColor', false, color);
+      
+      // Cerrar la paleta
+      colorDiv.closest('.color-palette').classList.remove('show');
+    }
+
     // Barra de formato tipo Word mejorada
     function formatoEvidencia(btn, comando) {
-      let div;
-      if (comando === 'foreColor') {
-        div = btn.parentElement.parentElement.parentElement.querySelector('.evidencias-editable');
-        div.focus();
-        document.execCommand('foreColor', false, btn.value);
-        return;
-      }
-      div = btn.parentElement.parentElement.parentElement.querySelector('.evidencias-editable');
+      const div = btn.closest('.checklist-item').querySelector('.evidencias-editable');
       div.focus();
       if (comando === 'createLink') {
         let url = prompt('URL del enlace:');
@@ -390,10 +538,8 @@
                 img.src = event.target.result;
                 // Asignar tamaño al 70% del natural
                 img.onload = function() {
-                  img.style.width = (img.naturalWidth * 0.7) + "px";
-                  img.style.height = (img.naturalHeight * 0.7) + "px";
-                  wrapper.style.width = img.style.width;
-                  wrapper.style.height = img.style.height;
+                  img.style.width = (this.naturalWidth * 0.7) + 'px';
+                  img.style.height = (this.naturalHeight * 0.7) + 'px';
                 };
                 img.setAttribute('draggable', 'true');
                 wrapper.appendChild(img);
@@ -402,8 +548,6 @@
                 const toolbar = document.createElement('span');
                 toolbar.className = 'img-toolbar';
                 toolbar.innerHTML = `
-                  <button type="button" title="Rotar 90°" onclick="editarImagen(this, 'rotar')">⟳</button>
-                  <button type="button" title="Voltear horizontal" onclick="editarImagen(this, 'flipH')">⇋</button>
                   <button type="button" title="Eliminar imagen" onclick="editarImagen(this, 'eliminar')">🗑️</button>
                 `;
                 wrapper.appendChild(toolbar);
@@ -415,35 +559,27 @@
 
                 // Selección para resize y edición
                 img.onclick = function(e) {
-                  document.querySelectorAll('.img-resizable-wrapper').forEach(w => {
-                    w.classList.remove('selected');
-                  });
-                  wrapper.classList.add('selected');
                   e.stopPropagation();
+                  document.querySelectorAll('.img-resizable-wrapper').forEach(w => w.classList.remove('selected'));
+                  wrapper.classList.add('selected');
                 };
 
                 // Resize mejorado (sin límites)
                 handle.onmousedown = function(e) {
                   e.preventDefault();
-                  e.stopPropagation();
-                  wrapper.classList.add('selected');
-                  let startX = e.clientX;
-                  let startY = e.clientY;
-                  let startWidth = img.offsetWidth;
-                  let startHeight = img.offsetHeight;
-
+                  const startX = e.clientX;
+                  const startY = e.clientY;
+                  const startWidth = parseInt(document.defaultView.getComputedStyle(img).width, 10);
+                  const startHeight = parseInt(document.defaultView.getComputedStyle(img).height, 10);
                   function mousemove(ev) {
-                    let newWidth = Math.max(30, startWidth + (ev.clientX - startX));
-                    let newHeight = Math.max(30, startHeight + (ev.clientY - startY));
-                    img.style.width = newWidth + "px";
-                    img.style.height = newHeight + "px";
-                    wrapper.style.width = newWidth + "px";
-                    wrapper.style.height = newHeight + "px";
+                    const newWidth = startWidth + ev.clientX - startX;
+                    const newHeight = startHeight + ev.clientY - startY;
+                    img.style.width = newWidth + 'px';
+                    img.style.height = newHeight + 'px';
                   }
                   function mouseup() {
                     document.removeEventListener('mousemove', mousemove);
                     document.removeEventListener('mouseup', mouseup);
-                    guardarEstadoCampo(div.dataset.id);
                   }
                   document.addEventListener('mousemove', mousemove);
                   document.addEventListener('mouseup', mouseup);
@@ -463,7 +599,6 @@
                   if (window._draggedImg && dropRange) {
                     dropRange.insertNode(window._draggedImg);
                     window._draggedImg = null;
-                    guardarEstadoCampo(div.dataset.id);
                   }
                 };
                 guardarEstadoCampo(div.dataset.id);
@@ -492,6 +627,7 @@
       }
       pagDiv.innerHTML += `<button onclick="nextPage()" ${currentPage === totalPages ? 'disabled' : ''}>Siguiente &gt;</button>`;
     }
+    
     function guardarEstadoCampo(id) {
       const aprobado = document.querySelector(`[name="aprobado_${id}"]`);
       const evidenciasDiv = document.querySelector(`.evidencias-editable[name="observaciones_${id}"]`);
@@ -500,11 +636,13 @@
       localStorage.setItem('certificacionChecklistCampos', JSON.stringify(camposEstado));
       renderSidebar();
     }
+    
     function goToPage(page) {
       guardarCamposPaginaActual();
       currentPage = page;
       renderChecklist();
     }
+    
     function prevPage() {
       guardarCamposPaginaActual();
       if (currentPage > 1) {
@@ -512,6 +650,7 @@
         renderChecklist();
       }
     }
+    
     function nextPage() {
       guardarCamposPaginaActual();
       const totalPages = Math.ceil(checklistItems.length / ITEMS_PER_PAGE);
@@ -520,6 +659,7 @@
         renderChecklist();
       }
     }
+    
     function guardarCamposPaginaActual() {
       const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
       const endIdx = Math.min(startIdx + ITEMS_PER_PAGE, checklistItems.length);
@@ -527,9 +667,11 @@
         guardarEstadoCampo(item.id);
       });
     }
+    
     function actualizarContadorEditable(div, id) {
       // Ya no hay límite ni contador visible
     }
+    
     function validarCampos() {
       let valido = true;
       let msg = '';
@@ -557,6 +699,7 @@
       mostrarMensaje(msg, valido ? 'success' : 'error');
       return valido;
     }
+    
     function mostrarMensaje(msg, tipo) {
       const formMsg = document.getElementById('formMsg');
       if (msg) {
@@ -565,12 +708,14 @@
         formMsg.innerHTML = '';
       }
     }
+    
     function guardarCambios() {
       guardarCamposPaginaActual();
       localStorage.setItem('certificacionChecklistCampos', JSON.stringify(camposEstado));
       mostrarMensaje('Cambios guardados correctamente.', 'success');
       renderSidebar();
     }
+    
     function cargarCambios() {
       camposEstado = JSON.parse(localStorage.getItem('certificacionChecklistCampos') || '{}');
       const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
